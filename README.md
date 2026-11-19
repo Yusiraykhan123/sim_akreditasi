@@ -1,58 +1,62 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIM Akreditasi RSU PKU Muhammadiyah Delanggu
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi Laravel untuk mengelola elemen penilaian akreditasi rumah sakit dan dokumen pendukungnya. Antarmuka menggunakan tema Glassmorphism dan dioptimalkan untuk desktop maupun perangkat mobile.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Login dengan dua peran: admin dan user.
+- Dashboard ringkasan bab, elemen penilaian, dan dokumen terbaru.
+- Master data elemen penilaian berdasarkan kelompok Manajemen dan Pelayanan.
+- Tambah, ubah, dan hapus elemen: bab, standar, EP, isi EP, dan RDWOS.
+- Data elemen penilaian dari workbook untuk 16 bab dapat dimasukkan dengan `php artisan db:seed --class=AccreditationElementsSeeder` setelah menjalankan seeder utama. Urutan mengikuti nomor pada tiap sheet; jalankan ulang untuk menyelaraskan data dengan workbook. Untuk TKRS saja, gunakan `php artisan db:seed --class=TkrsElementSeeder`.
+- Unggah satu dokumen untuk satu, beberapa, atau semua unit melalui popup; setiap unit mendapat catatan dokumen tersendiri dengan salinan file yang sama (PDF, Office, dan gambar; maksimal 10 MB).
+- Cari dokumen berdasarkan nama file, unit, keterangan, standar, EP, atau bab; unduh dan hapus dokumen.
+- Admin dapat mengelola master unit: tambah, ubah, dan hapus unit. Unit yang masih digunakan dokumen tidak dapat dihapus.
+- User dapat mengelola Master Data dan dokumen, tetapi tidak dapat membuka fitur Setting Unit.
+- Kolom Nilai RS dan Rekomendasi tidak disediakan.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Menjalankan di Laragon
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Persyaratan: PHP 8.3 atau lebih baru, Composer, ekstensi PHP `pdo_mysql`, dan MySQL/MariaDB Laragon.
 
-## Learning Laravel
+1. Letakkan folder proyek di direktori Laragon, misalnya `C:\laragon\www\sim-akreditasi`.
+2. Buat database MySQL bernama `sim_akreditasi` melalui HeidiSQL atau phpMyAdmin.
+3. Salin `.env.example` menjadi `.env`, lalu sesuaikan `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD`.
+4. Pasang dependency dan buat application key:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+   ```bash
+   composer install
+   php artisan key:generate
+   ```
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+5. Isi `ADMIN_PASSWORD` dan `USER_PASSWORD` pada `.env`, lalu migrasikan tabel dan isi akun serta bab akreditasi:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+   ```bash
+   php artisan migrate --seed
+   ```
 
-## Agentic Development
+6. Untuk menjalankan tanpa virtual host Laragon:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+   ```bash
+   php artisan serve
+   ```
+
+   Buka `http://127.0.0.1:8000`. Jika menggunakan virtual host, arahkan document root ke folder `public` dan sesuaikan `APP_URL` di `.env`.
+
+## Akun awal
+
+- Admin: username `adminakreditasi` (password diatur melalui `ADMIN_PASSWORD`).
+- User: username `akreditasi` (password diatur melalui `USER_PASSWORD`).
+
+Seeder mengambil kredensial dari `.env`. Pastikan password diganti dan disimpan dengan aman sebelum aplikasi digunakan pada lingkungan produksi. Seeder menyediakan akun admin dan user serta kategori bab Manajemen/Pelayanan; isi EP dapat dimasukkan melalui halaman Master Data.
+
+Seeder elemen mengisi standar, EP, isi EP, dan urutan dari workbook sumber. Kolom **Upload Bukti** dan **Assessment** pada workbook belum menjadi kolom di aplikasi.
+
+File yang diunggah disimpan pada storage privat Laravel (`storage/app/private`). Unduhan dilayani oleh aplikasi setelah pengguna masuk, bukan melalui URL file publik.
+Daftar awal terdiri dari 43 unit yang ditetapkan pada `config/units.php`. Admin dapat mengelola unit melalui menu **Setting Unit**. Saat daftar awal diperbarui, dokumen tetap disimpan; dokumen yang terhubung ke unit lama di luar daftar baru dilepas dari unit dan tampil sebagai **Belum diatur** sampai dikelompokkan kembali.
+
+## Pengujian
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
